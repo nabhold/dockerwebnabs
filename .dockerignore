@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **/__pycache__
 **/.venv
 **/.classpath
@@ -30,4 +31,38 @@ README.md
 !requirements.txt
 !wait-for-it.sh
 !Dockerfile
+=======
+**/__pycache__
+**/.venv
+**/.classpath
+**/.dockerignore
+**/.git
+**/.gitignore
+**/.project
+**/.settings
+**/.toolstarget
+**/.vs
+**/.vscode
+**/*.*proj.user
+**/*.dbmdl
+**/*.jfm
+/bin
+/charts
+/docker-compose***
+/compose***
+/node_modules
+/npm-debug.log
+/obj
+/secrets.dev.yaml
+/values.dev.yaml
+LICENSE
+README.md
+
+# Ensure .env file is copied
+
+!.env
+!requirements.txt
+!wait-for-it.sh
+!Dockerfile
+>>>>>>> d90e2fa11841d1d2922e64e7663aeb40abc1dc93
 !compose.yml

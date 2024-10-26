@@ -1,3 +1,8 @@
+<<<<<<< HEAD
 .venv
 __pycache__/
+=======
+.venv
+__pycache__/
+>>>>>>> d90e2fa11841d1d2922e64e7663aeb40abc1dc93
 db.sqlite3

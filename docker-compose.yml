@@ -1,3 +1,4 @@
+<<<<<<< HEAD
  
 
 services:
@@ -96,4 +97,104 @@ services:
 volumes:
   postgres_data:
   static_volume:
+=======
+ 
+
+services:
+  db:
+    image: postgres:latest
+    restart: on-failure
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file: 
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+
+  web:
+    image: nabhold:latest
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: always
+    env_file: 
+      - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=nabhold.settings.development
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    ports:
+      - "8000:8000"
+    command: >
+      bash -c "wait-for-it db:5432 -s -t 0
+      && python manage.py collectstatic --noinput
+      && python manage.py migrate
+      && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    volumes:
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - redis_data:/data
+      - ./logs:/var/log/redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD}"]
+    env_file: 
+      - .env
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "nabSimplePassw0rd123", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+   
+
+  celery-worker:
+    build: .
+    command: celery -A nabhold worker --loglevel=info
+    env_file: 
+      - .env
+    environment:
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/0
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - web
+
+  celery-beat:
+    build: .
+    command: celery -A nabhold beat --loglevel=info
+    env_file: 
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - web
+   
+
+volumes:
+  postgres_data:
+  static_volume:
+>>>>>>> d90e2fa11841d1d2922e64e7663aeb40abc1dc93
   redis_data:
